@@ -60,19 +60,25 @@
         verifyDatabaseSyncAndRender();
     }
 
+      // 🔄 POLLING ENGINE: Holds template injection loops execution until deferred dependencies are resolved
     function verifyDatabaseSyncAndRender() {
         const targetRegistryKey = `${window.routeActiveServiceKey}-form-master`;
         
-        if (typeof window.formRegistry[targetRegistryKey] === "undefined" && databasePollingAttempts < 50) {
+        // FIX: Ensure BOTH the desktop pricing files AND your new mobile steps markup templates are parsed before rendering
+        const isDatabaseReady = typeof window.formRegistry[targetRegistryKey] !== "undefined";
+        const isStepsFileReady = typeof window.getMobileWizardStepOneMarkup === "function";
+
+        if ((!isDatabaseReady || !isStepsFileReady) && databasePollingAttempts < 50) {
             databasePollingAttempts++;
-            console.log(`[Mobile Sync] Waiting for deferred data layers to compile... Attempt ${databasePollingAttempts}/50`);
+            console.log(`[Mobile Sync] Waiting for deferred components to compile... Attempt ${databasePollingAttempts}/50`);
             setTimeout(verifyDatabaseSyncAndRender, 100);
             return;
         }
         
-        console.log(`[Mobile Sync Success] Form verification confirmed for: ${targetRegistryKey}`);
+        console.log(`[Mobile Sync Success] All template dependencies confirmed. Building workspace...`);
         renderActiveWorkflowStepView();
     }
+
 
     function buildStaticLayoutStructuralTargets() {
         const headerTarget = document.getElementById("mobile-app-header-slot");
