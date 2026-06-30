@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#10b981">
+    <title>Secured Enterprise Compliance Deployment Wizard | filings4u</title>
+
+    <!-- 🌐 EXTERNAL SECURITY AND PAYMENT INTERFACES -->
+    <script src="https://js.stripe.com/v3/"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <script src="assets/js/wizard-anti-crash.js" defer></script>
+
+    <!-- 🧑‍🎨 THEME STYLES AND CUSTOM FONTS MATRICES -->
+    <link rel="icon" type="image/png" href="images/fav.png">
+    <link rel="stylesheet" href="assets/css/mobile-wizard.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Dancing+Script&family=Great+Vibes&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cloudflare.com">
+
+    <!-- ⚙️ COMPLIANT SERVICE FILE LOADING SEQUENCER MATRIX -->
+    <script src="assets/js/wizard-pricing-db.js" defer></script>
+    <script src="assets/js/wizard-helpers.js" defer></script>
+    <script src="assets/js/services/llc-formation.js" defer></script>
+    <script src="assets/js/services/corporations.js" defer></script>
+    <script src="assets/js/services/series-llc.js" defer></script>
+    <script src="assets/js/services/sole-proprietorship.js" defer></script>
+    <script src="assets/js/services/dba-registration.js" defer></script>
+    <script src="assets/js/services/nonprofits.js" defer></script>
+    <script src="assets/js/services/foreign-qualification.js" defer></script>
+    <script src="assets/js/services/llc-reinstatement.js" defer></script>
+    <script src="assets/js/services/servicemark-filing.js" defer></script>
+    <script src="assets/js/services/annual-reports.js" defer></script>
+    <script src="assets/js/services/operating-agreement.js" defer></script>
+    <script src="assets/js/services/registered-agent.js" defer></script>
+    <script src="assets/js/services/business-licenses.js" defer></script>
+    <script src="assets/js/services/dissolution.js" defer></script>
+    <script src="assets/js/services/certificate-of-good-standing.js" defer></script>
+    <script src="assets/js/services/clia-certificate.js" defer></script>
+    <script src="assets/js/services/regulatory-consulting.js" defer></script>
+    <script src="assets/js/services/state-tax.js" defer></script>
+    <script src="assets/js/services/franchise-tax.js" defer></script>
+    <script src="assets/js/services/sales-tax-registration.js" defer></script>
+    <script src="assets/js/services/payroll-tax-940-941.js" defer></script>
+    <script src="assets/js/services/duns-number.js" defer></script>
+    <script src="assets/js/services/minority-certificate.js" defer></script>
+    <script src="assets/js/services/ifta-registration.js" defer></script>
+    <script src="assets/js/services/dot-permits.js" defer></script>
+    <script src="assets/js/services/ifta-quarterly-returns.js" defer></script>
+    <script src="assets/js/services/federal-tax.js" defer></script>
+    <script src="assets/js/services/employer-id-ein.js" defer></script>
+    <script src="assets/js/services/heavy-use-tax-2290.js" defer></script>
+    <script src="assets/js/services/cage-code.js" defer></script>
+    <script src="assets/js/services/owner-operators.js" defer></script>
+    <script src="assets/js/services/trucker-authority.js" defer></script>
+    <script src="assets/js/services/broker-authority.js" defer></script>
+    <script src="assets/js/services/ucr-registration.js" defer></script>
+    <script src="assets/js/services/scac-code.js" defer></script>
+    <script src="assets/js/services/dot-consortium.js" defer></script>
+    <script src="assets/js/services/driver-file.js" defer></script>
+    <script src="assets/js/services/process-agents-boc-3.js" defer></script>
+    <script src="assets/js/services/hazmat-registration.js" defer></script>
+    <script src="assets/js/services/trucker-insurance-quote.js" defer></script>
+    <script src="assets/js/services/broker-insurance-quote.js" defer></script>
+    <script src="assets/js/services/new-entrant-audit.js" defer></script>
+    <script src="assets/js/services/mcs-150-update.js" defer></script>
+    <script src="assets/js/services/boc-3-amendment.js" defer></script>
+    <script src="assets/js/services/apostille-services.js" defer></script>
+
+    <!-- Core Engines and Utilities Layout Modules Mapping -->
+    <script src="assets/js/wizard-upsells.js" defer></script>
+    <script src="assets/js/wizard-summary.js" defer></script>
+    <script src="assets/js/stripe.js" defer></script>
+    <script src="assets/js/wizard-chat-widget.js" defer></script>
+</head>
+<body>
+
+    <!-- 🌐 Responsive Application Header Target -->
+    <header id="mobile-app-header-slot"></header>
+
+    <!-- 📱 Main Wizard Workspace Frame Viewport -->
+    <main class="mobile-wizard-viewport">
+        <article class="wizard-panel-card">
+            
+            <!-- Target A: Dynamic Progress Trackers Layer -->
+            <section id="mobile-progress-tracker-target"></section>
+
+            <!-- Target B: Step Heading, Titles, and Explanations Block -->
+            <section id="mobile-step-heading-target" class="step-heading-block"></section>
+
+            <!-- Target C: Core Input Field Injections Slot Container (100+ Services) -->
+            <section id="dynamic-onboarding-fields-root" class="mobile-full-stack">
+                <div class="mobile-loader-spinner-wrapper">
+                    <i class="fa-solid fa-spinner fa-spin"></i>
+                    <span>Connecting secured compliance pipelines...</span>
+                </div>
+            </section>
+
+        </article>
+    </main>
+
+    <!-- 🛠️ Target D: Fixed Base Action Footer Navigation Strip Bar -->
+    <footer id="mobile-fixed-action-toolbar-target"></footer>
+
+    <!-- Native State Context Buffers -->
+    <input type="hidden" id="wizard-route-service-id" value="">
+    <input type="hidden" id="wizard-route-tier-id" value="">
+
+    <!-- 🚀 Runtime Mobile Application Controller Pipeline Execution -->
+    <script src="assets/js/mobile-wizard.js" defer></script>
+</body>
+</html>
