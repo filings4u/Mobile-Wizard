@@ -22,16 +22,27 @@
     function bootstrapMobileApplicationEngine() {
         const urlParams = new URLSearchParams(window.location.search);
         
-        let resolvedServiceSlug = urlParams.get('service') || urlParams.get('id') || "llc";
-        let resolvedPackagePlan = urlParams.get('plan') || urlParams.get('tier') || "standard";
+        let resolvedServiceSlug = urlParams.get('service') || urlParams.get('package') || urlParams.get('id') || window.routeActiveServiceKey || "";
+        let resolvedPackagePlan = urlParams.get('plan') || urlParams.get('tier') || window.routeActivePlanKey || "";
+
+        if (!resolvedServiceSlug) {
+            console.warn("[Mobile Engine Guard] No valid product service intent parameters detected. Postponing compiler injection pass.");
+            buildStaticLayoutStructuralTargets();
+            
+            const fieldsTarget = document.getElementById("dynamic-onboarding-fields-root");
+            if (fieldsTarget) {
+                fieldsTarget.innerHTML = `
+                    <div style="text-align: center; padding: 40px 16px; color: var(--slate); font-weight: 500; font-size: 0.95rem;">
+                        <i class="fa-solid fa-circle-exclamation" style="color: var(--primary); margin-bottom: 8px; font-size: 1.5rem; display: block;"></i>
+                        <span>Session initialized. Waiting for service selection parameters pipeline context...</span>
+                    </div>
+                `;
+            }
+            return;
+        }
 
         window.routeActiveServiceKey = resolvedServiceSlug.toLowerCase().trim().replace(/[\s_]+/g, "-");
-        window.routeActivePlanKey = resolvedPackagePlan.toLowerCase().trim();
-
-        const serviceNode = document.getElementById("wizard-route-service-id");
-        const planNode = document.getElementById("wizard-route-tier-id");
-        if (serviceNode) serviceNode.value = window.routeActiveServiceKey;
-        if (planNode) planNode.value = window.routeActivePlanKey;
+        window.routeActivePlanKey = resolvedPackagePlan ? resolvedPackagePlan.toLowerCase().trim() : "";
 
         const cachedPayload = localStorage.getItem("f4u_wizard_onboarding_state");
         if (cachedPayload) {
@@ -40,14 +51,15 @@
                 if (parsedMetrics.currentWizardActiveStep) {
                     window.currentWizardActiveStep = parseInt(parsedMetrics.currentWizardActiveStep, 10);
                 }
-            } catch(e) { console.warn("[Mobile Engine] Cache restore bypassed."); }
+            } catch(e) { 
+                console.warn("[Mobile Engine] Cache restore bypassed."); 
+            }
         }
 
         buildStaticLayoutStructuralTargets();
         verifyDatabaseSyncAndRender();
     }
 
-    // 🔄 POLLING ENGINE: Holds template injection loops execution until deferred dependencies are resolved
     function verifyDatabaseSyncAndRender() {
         const targetRegistryKey = `${window.routeActiveServiceKey}-form-master`;
         
@@ -58,7 +70,7 @@
             return;
         }
         
-        // Render step views when compilation verifies successfully
+        console.log(`[Mobile Sync Success] Form verification confirmed for: ${targetRegistryKey}`);
         renderActiveWorkflowStepView();
     }
 
@@ -80,20 +92,25 @@
         if (footerTarget) {
             footerTarget.innerHTML = `
                 <div class="mobile-action-toolbar">
-                    <button type="button" class="btn-mobile-nav btn-mobile-secondary" onclick="window.navigateMobileWizardStep(-1)">Back</button>
-                    <button type="button" class="btn-mobile-nav btn-mobile-primary" onclick="window.navigateMobileWizardStep(1)">Continue</button>
+                    <button type="button" class="btn-mobile-nav btn-mobile-secondary" id="mobile-back-btn" onclick="window.navigateMobileWizardStep(-1)">Back</button>
+                    <button type="button" class="btn-mobile-nav btn-mobile-primary" id="mobile-continue-btn" onclick="window.navigateMobileWizardStep(1)">Continue</button>
                 </div>
             `;
         }
     }
 
-    function renderActiveWorkflowStepView() {
+    async function renderActiveWorkflowStepView() {
         const activeIdx = window.currentWizardActiveStep;
         const currentMeta = stepMetadataMatrix[activeIdx] || { title: "Compliance Hub", desc: "Complete configuration options." };
 
         const trackerTarget = document.getElementById("mobile-progress-tracker-target");
         const headingTarget = document.getElementById("mobile-step-heading-target");
         const fieldsTarget = document.getElementById("dynamic-onboarding-fields-root");
+
+        const serviceInput = document.getElementById("wizard-route-service-id");
+        const planInput = document.getElementById("wizard-route-tier-id");
+        if (serviceInput) serviceInput.value = window.routeActiveServiceKey || "";
+        if (planInput) planInput.value = window.routeActivePlanKey || "";
 
         if (trackerTarget) {
             trackerTarget.innerHTML = `
@@ -111,90 +128,51 @@
             `;
         }
 
-        const templateMasterKey = `${window.routeActiveServiceKey}-form-master`;
-        let computedHtmlStringMarkup = "";
-
-        try {
-            if (window.formRegistry && typeof window.formRegistry[templateMasterKey] === "function") {
-                const optionsHtml = window.globalStateDropdownOptionsHtml || "";
-                computedHtmlStringMarkup = window.formRegistry[templateMasterKey](optionsHtml);
-            }
-        } catch(err) { console.error("[Mobile Engine Exception] Template build failure:", err); }
-
         if (fieldsTarget) {
-            if (activeIdx === 2 && computedHtmlStringMarkup) {
-                fieldsTarget.innerHTML = `
-                    <div class="isolated-form-payload-container mobile-full-stack">
-                        ${computedHtmlStringMarkup}
-                    </div>
-                `;
-            } else {
-                fieldsTarget.innerHTML = `
-                    <div class="isolated-form-payload-container mobile-full-stack">
-                        <div class="mobile-form-group">
-                            <label>Primary Officer / Representative Name</label>
-                            <input type="text" name="m_officer_name" id="m_officer_name" placeholder="John Doe" required />
-                        </div>
-                        <div class="mobile-form-group">
-                            <label>Secure Corporate Notification Email</label>
-                            <input type="email" name="m_officer_email" id="m_officer_email" placeholder="john@company.com" required />
-                        </div>
-                    </div>
-                `;
-            }
-        }
-
-        if (typeof window.cacheAndRestoreWizardFormStatesVanilla === "function") {
-            window.cacheAndRestoreWizardFormStatesVanilla(true);
-        }
-    }
-
-    window.navigateMobileWizardStep = function(direction) {
-        if (direction === 1) {
-            const requiredFields = document.querySelectorAll("#dynamic-onboarding-fields-root input[required], #dynamic-onboarding-fields-root select[required]");
-            let isCurrentStepValid = true;
-
-            requiredFields.forEach(element => {
-                if (!element.value.trim()) {
-                    isCurrentStepValid = false;
-                    element.style.borderColor = "#ef4444";
-                } else {
-                    element.style.borderColor = "var(--border)";
+            if (activeIdx === 1 && typeof window.getMobileWizardStepOneMarkup === "function") {
+                fieldsTarget.innerHTML = window.getMobileWizardStepOneMarkup();
+            } 
+            else if (activeIdx === 2 && typeof window.getMobileWizardStepTwoMarkup === "function") {
+                fieldsTarget.innerHTML = window.getMobileWizardStepTwoMarkup();
+                
+                const masterRegistryKey = `${window.routeActiveServiceKey}-form-master`;
+                const nestedRootSlot = document.getElementById("dynamic-onboarding-fields-root");
+                
+                if (nestedRootSlot && typeof window.formRegistry[masterRegistryKey] === "function") {
+                    try {
+                        const stateOptions = window.globalStateDropdownOptionsHtml || "";
+                        nestedRootSlot.innerHTML = window.formRegistry[masterRegistryKey](stateOptions);
+                    } catch(e) {
+                        console.error("[Mobile Engine Exception] Dynamic template execution drop:", e);
+                    }
                 }
-            });
-
-            if (!isCurrentStepValid) {
-                alert("Please fill out all required fields before proceeding.");
-                return;
-            }
-        }
-
-        try {
-            const cacheKey = "f4u_wizard_onboarding_state";
-            const sessionCache = JSON.parse(localStorage.getItem(cacheKey) || "{}");
-            const structuralInputs = document.querySelectorAll("#dynamic-onboarding-fields-root input, #dynamic-onboarding-fields-root select");
-
-            structuralInputs.forEach(input => {
-                const mapKey = input.id || input.name;
-                if (mapKey) sessionCache[mapKey] = input.value;
-            });
-
-            sessionCache.currentWizardActiveStep = window.currentWizardActiveStep + direction;
-            localStorage.setItem(cacheKey, JSON.stringify(sessionCache));
-        } catch(e) { console.error("[Mobile Save State Matrix Fail]", e); }
-
-        let targetStepIndex = window.currentWizardActiveStep + direction;
-        if (targetStepIndex < 1) targetStepIndex = 1;
-        if (targetStepIndex > 7) targetStepIndex = 7;
-
-        window.currentWizardActiveStep = targetStepIndex;
-        renderActiveWorkflowStepView();
-        window.scrollTo({ top: 0, behavior: "smooth" });
-    };
-
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", bootstrapMobileApplicationEngine);
-    } else {
-        bootstrapMobileApplicationEngine();
-    }
-})();
+            } 
+            else if (activeIdx === 3 && typeof window.getMobileWizardStepThreeMarkup === "function") {
+                fieldsTarget.innerHTML = window.getMobileWizardStepThreeMarkup();
+                if (typeof window.renderTargetUpsellsListPanel === "function") {
+                    window.renderTargetUpsellsListPanel();
+                }
+            } 
+            else if (activeIdx === 4 && typeof window.getMobileWizardStepFourMarkup === "function" && typeof window.getMobileWizardStepFourExecutionFieldsMarkup === "function") {
+                fieldsTarget.innerHTML = window.getMobileWizardStepFourMarkup() + window.getMobileWizardStepFourExecutionFieldsMarkup();
+                if (typeof window.evaluatePoaInputStateMatrixMobile === "function") {
+                    window.evaluatePoaInputStateMatrixMobile();
+                }
+            } 
+            else if (activeIdx === 5 && typeof window.getMobileWizardStepFiveMarkup === "function") {
+                fieldsTarget.innerHTML = window.getMobileWizardStepFiveMarkup();
+                if (typeof window.updateSummaryInvoiceDisplayMatrix === "function") {
+                    window.updateSummaryInvoiceDisplayMatrix();
+                }
+            } 
+            else if (activeIdx === 6 && typeof window.getMobileWizardStepSixMarkup === "function") {
+                fieldsTarget.innerHTML = window.getMobileWizardStepSixMarkup();
+                if (typeof window.initializeFlatStripeCheckoutElement === "function") {
+                    window.initializeFlatStripeCheckoutElement();
+                }
+                if (typeof window.syncTotalToPaymentDisplay === "function") {
+                    window.syncTotalToPaymentDisplay();
+                }
+            } 
+            else if (activeIdx === 7 && typeof window.getMobileWizardStepSevenReceiptMarkup === "function" && typeof window.getMobileWizardStepSevenAccountSetupMarkup === "function") {
+fieldsTarget.innerHTML = window.getMobileWizardStepSevenReceiptMarkup() + window.getMobileWizardStepSevenAccountSetupMarkup();}}const backBtn = document.getElementById("mobile-back-btn");if (backBtn) {backBtn.style.visibility = (activeIdx === 1 || activeIdx === 7) ? "hidden" : "visible";}const continueBtn = document.getElementById("mobile-continue-btn");if (continueBtn) {if (activeIdx === 6) continueBtn.innerText = "Submit Order";else if (activeIdx === 7) continueBtn.style.display = "none";else continueBtn.innerText = "Continue";}if (typeof window.updateDynamicPricingMatrixVanilla === "function") {window.updateDynamicPricingMatrixVanilla();}if (typeof window.cacheAndRestoreWizardFormStatesVanilla === "function") {window.cacheAndRestoreWizardFormStatesVanilla(true);}}window.navigateMobileWizardStep = function(direction) {if (direction === 1) {const requiredFields = document.querySelectorAll("#dynamic-onboarding-fields-root input[required], #dynamic-onboarding-fields-root select[required]");let isCurrentStepValid = true;requiredFields.forEach(element => {if (!element.value.trim()) {isCurrentStepValid = false;element.style.borderColor = "#ef4444";} else {element.style.borderColor = "var(--border)";}});if (!isCurrentStepValid) {alert("Please fill out all required fields before proceeding.");return;}if (window.currentWizardActiveStep === 6 && typeof window.executeOnboardingTransactionPayloadSubmitVanilla === "function") {window.executeOnboardingTransactionPayloadSubmitVanilla();return;}}try {const cacheKey = "f4u_wizard_onboarding_state";const sessionCache = JSON.parse(localStorage.getItem(cacheKey) || "{}");const structuralInputs = document.querySelectorAll("#dynamic-onboarding-fields-root input, #dynamic-onboarding-fields-root select, #dynamic-onboarding-fields-root textarea");structuralInputs.forEach(input => {const mapKey = input.id || input.name;if (mapKey) {sessionCache[mapKey] = input.type === 'checkbox' ? input.checked : input.value;}});sessionCache.currentWizardActiveStep = window.currentWizardActiveStep + direction;localStorage.setItem(cacheKey, JSON.stringify(sessionCache));} catch(e) {console.error("[Mobile Save State Matrix Fail]", e);}let targetStepIndex = window.currentWizardActiveStep + direction;if (targetStepIndex < 1) targetStepIndex = 1;if (targetStepIndex > 7) targetStepIndex = 7;window.currentWizardActiveStep = targetStepIndex;renderActiveWorkflowStepView();window.scrollTo({ top: 0, behavior: "smooth" });};if (document.readyState === "loading") {document.addEventListener("DOMContentLoaded", bootstrapMobileApplicationEngine);} else {bootstrapMobileApplicationEngine();}})();

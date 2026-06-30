@@ -20,11 +20,26 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Dancing+Script&family=Great+Vibes&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cloudflare.com">
+    
 
     <!-- ⚙️ COMPLIANT SERVICE FILE LOADING SEQUENCER MATRIX -->
-    <script src="assets/js/wizard-pricing-db.js" defer></script>
-    <script src="assets/js/wizard-helpers.js" defer></script>
+
+<!-- Place this script block at the top of your head, right before wizard-pricing-db.js -->
+<script>
+    // Safeguard pricing object namespaces
+    window.GLOBAL_COMPANY_PRICING = window.GLOBAL_COMPANY_PRICING || {};
+    window.GLOBAL_COMPANY_PRICING.packages = window.GLOBAL_COMPANY_PRICING.packages || {};
+    window.CENTRAL_SERVICE_PLAN_DB = window.CENTRAL_SERVICE_PLAN_DB || {};
+
+    // Global variable shields to stop duplicate declaration compiler crashes
+    var urlParamsMatrix = urlParamsMatrix || null;
+    var step3TargetPanel = step3TargetPanel || null;
+</script>
+
+<!-- Existing script tags remain unchanged below -->
+  <script src="assets/js/mobile-pricing-db-proxy.js" defer></script>
+    <script src="assets/js/mobile-helpers-proxy.js" defer></script>
+
     <script src="assets/js/services/llc-formation.js" defer></script>
     <script src="assets/js/services/corporations.js" defer></script>
     <script src="assets/js/services/series-llc.js" defer></script>
@@ -71,16 +86,18 @@
     <script src="assets/js/services/boc-3-amendment.js" defer></script>
     <script src="assets/js/services/apostille-services.js" defer></script>
 
-    <!-- Core Engines and Utilities Layout Modules Mapping -->
-    <script src="assets/js/wizard-upsells.js" defer></script>
-    <script src="assets/js/wizard-summary.js" defer></script>
-    <script src="assets/js/stripe.js" defer></script>
-    <script src="assets/js/wizard-chat-widget.js" defer></script>
+   <!-- Core Wizard Engines & Master Layout Router --> 
+  <script src="assets/js/wizard-upsells.js" defer></script> 
+  <script src="assets/js/wizard-summary.js" defer></script> 
+  <script src="assets/js/stripe.js" defer></script> 
+  <script src="assets/js/step2-popup.js" defer></script> 
+  <script src="assets/js/wizard-chat-widget.js" defer></script> 
 </head>
 <body>
 
     <!-- 🌐 Responsive Application Header Target -->
     <header id="mobile-app-header-slot"></header>
+    
 
     <!-- 📱 Main Wizard Workspace Frame Viewport -->
     <main class="mobile-wizard-viewport">
@@ -115,5 +132,6 @@
 
     <!-- 🚀 Runtime Mobile Application Controller Pipeline Execution -->
     <script src="assets/js/mobile-wizard-steps.js" defer></script>
+      <script src="assets/js/services/form-injection.js" defer></script>
 </body>
 </html>
