@@ -38,60 +38,43 @@ function verifyDatabaseSyncAndRender() {
 
 
 function getActivePlanDetails() { 
-    // Read ONLY what is actively set in the URL parameters
     const serviceKey = window.routeActiveServiceKey; 
     const planKey = window.routeActivePlanKey; 
-    const masterRegistryKey = serviceKey ? `${serviceKey}-form-master` : ""; 
     
-    let planData = { title: "", price: "", features: [] }; 
-
-    // Return empty payload immediately if no context parameters exist
+    let planData = { title: "", price: "0.00", features: [] }; 
     if (!serviceKey) return planData;
 
-    const nativeSourceDb = window.GLOBAL_COMPANY_PRICING || window.CENTRAL_SERVICE_PLAN_DB || window.formRegistry || {}; 
-    let sourcePlanNode = null; 
+    // Direct interface connection to your true database location
+    const dbRoot = window.STATE_PRICING || {};
+    const centralPackages = dbRoot.packages || {};
+    const targetServiceNode = centralPackages[serviceKey];
 
-    if (nativeSourceDb[serviceKey]) { 
-        sourcePlanNode = nativeSourceDb[serviceKey]; 
-    } else if (masterRegistryKey && window.formRegistry && window.formRegistry[masterRegistryKey]) { 
-        const registryRoot = window.formRegistry[masterRegistryKey]; 
-        sourcePlanNode = registryRoot.packages || registryRoot; 
-    } else if (nativeSourceDb.packages) { 
-        sourcePlanNode = nativeSourceDb.packages; 
-    } 
-
-    // Handle empty data nodes purely without hardcoded fallbacks
-    if (!sourcePlanNode || Object.keys(sourcePlanNode).length === 0) { 
-        console.log("[Mobile Engine] Target data node empty. Generating readable text title string from url key directly..."); 
-        planData.title = serviceKey.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()); 
-        planData.price = ""; 
-        planData.features = []; 
-        return planData; 
-    } 
-
-    if (sourcePlanNode) { 
-        planData.title = sourcePlanNode.name || sourcePlanNode.title || serviceKey.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()); 
+    if (targetServiceNode) {
+        // 1. Unpack the name from the pricing structure natively
+        planData.title = targetServiceNode.name || serviceKey.replace(/-/g, ' ').toUpperCase();
         
-        if (planKey && sourcePlanNode[planKey] !== undefined) { 
-            planData.price = sourcePlanNode[planKey]; 
-        } else if (planKey && sourcePlanNode.packages && sourcePlanNode.packages[planKey]) { 
-            const innerPkg = sourcePlanNode.packages[planKey]; 
-            planData.title = innerPkg.name || innerPkg.title || planData.title; 
-            planData.price = innerPkg.price || innerPkg.amount || ""; 
-        } else { 
-            planData.price = sourcePlanNode.price || sourcePlanNode.amount || ""; 
-        } 
+        // 2. Fetch the plan price (Starter, Compliance, Enterprise) directly from the properties
+        if (planKey && targetServiceNode[planKey] !== undefined) {
+            planData.price = Number(targetServiceNode[planKey]).toFixed(2);
+        }
 
-        if (planKey && sourcePlanNode.bullets && Array.isArray(sourcePlanNode.bullets[planKey])) { 
-            planData.features = sourcePlanNode.bullets[planKey]; 
-        } else if (sourcePlanNode.bullets && Array.isArray(sourcePlanNode.bullets)) { 
-            planData.features = sourcePlanNode.bullets; 
-        } else if (Array.isArray(sourcePlanNode.features)) { 
-            planData.features = sourcePlanNode.features; 
-        } 
-    } 
+        // 3. Extract the exact bullet features array mapped to that plan selection
+        if (planKey && targetServiceNode.bullets && Array.isArray(targetServiceNode.bullets[planKey])) {
+            planData.features = targetServiceNode.bullets[planKey];
+        } else if (targetServiceNode.bullets && Array.isArray(targetServiceNode.bullets)) {
+            planData.features = targetServiceNode.bullets;
+        } else if (Array.isArray(targetServiceNode.features)) {
+            planData.features = targetServiceNode.features;
+        }
+    } else {
+        // Fallback layout name formatting if data isn't compiled yet
+        planData.title = serviceKey.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    }
+
     return planData; 
 }
+
+
 
 // ==========================================
 // DYNAMIC DOM RENDERING PIPELINE FOR STEP 1
@@ -116,7 +99,7 @@ function renderActiveWorkflowStepView() {
 
     // 2. Only build the inclusion layout if it's Step 1
     if (window.currentWizardActiveStep === 1) {
-        // Fetch values processed from URL parameter lookups or data fallbacks
+        // Fetch values processed from window.STATE_PRICING or data routing layers
         const dataPayload = getActivePlanDetails();
         
         let dynamicListItems = "";
@@ -148,12 +131,39 @@ function renderActiveWorkflowStepView() {
 }
 
 // ==========================================
+// DECOUPLED LIFECYCLE RE-VERIFICATION ENGINE
+// ==========================================
+function verifyDatabaseSyncAndRender() {
+    console.log("[Mobile Engine] Inspecting real-time workspace allocation channels...");
+    
+    // Read the true state registry properties
+    const dbRoot = window.STATE_PRICING || {};
+    const centralDatabase = dbRoot.packages || {};
+    const totalDatabaseKeysCount = Object.keys(centralDatabase).length;
+    
+    window.databasePollingAttempts = window.databasePollingAttempts || 0;
+
+    // FUSED ASYNC PROTECTION: If the separate state-pricing.js script is still parsing,
+    // hold execution briefly for up to 10 loops (500ms max) to let keys populate natively.
+    if (window.currentWizardActiveStep === 1 && totalDatabaseKeysCount === 0 && window.databasePollingAttempts < 10) {
+        window.databasePollingAttempts++;
+        console.log(`[Mobile Engine] Pricing data channel unassigned. Retrying pipeline hook... Attempt ${window.databasePollingAttempts}`);
+        setTimeout(verifyDatabaseSyncAndRender, 50);
+        return;
+    }
+
+    // Break out and paint the DOM values immediately once keys exist or safety limit is met
+    renderActiveWorkflowStepView();
+}
+
+// ==========================================
 // KICKSTART PIPELINE RUNTIME HOOKS
 // ==========================================
 document.addEventListener("DOMContentLoaded", () => {
     extractURLConfigurationParameters();
     verifyDatabaseSyncAndRender();
 });
+
 
 
 async function renderActiveWorkflowStepView() { 
@@ -331,57 +341,67 @@ function buildStaticLayoutStructuralTargets() {
     if (headingTarget) headingTarget.innerHTML = ""; 
     
     if (headerTarget) { 
-        headerTarget.innerHTML = ` 
-            <div class="f4u-full-canvas-header" style="background: #ffffff; border-bottom: 1px solid #cbd5e1; padding: 12px 0; width: 100% !important; min-width: 100% !important; box-sizing: border-box; clear: both; display: block;"> 
-                <div class="nav-container" style="width: 92% !important; max-width: 1370px !important; margin: 0 auto !important; padding: 0 !important; display: flex !important; justify-content: space-between !important; align-items: center !important; box-sizing: border-box;"> 
-                    <a href="mobile-wizard.html" style="display: block; margin: 0 !important; padding: 0 !important;"> 
-                        <!-- FIXED PATHWAY: Uses your true asset image path instead of hitting the raw domain route --> 
-                        <img src="images/logo.png" alt="filings4u" onerror="this.src='images/fav.png'" style="height: 38px; width: auto; max-width: 100%; object-fit: contain; display: block;"> 
-                    </a> 
-                    <div style="display: flex !important; align-items: center !important; justify-content: flex-end !important; box-sizing: border-box; margin: 0 !important; padding: 0 !important;"> 
-                        <div class="header-meta-badge" style="font-size: 0.85rem; font-weight: 400; color: #0f172a; background: #f8fafc; padding: 8px 14px; border-radius: 6px; border: 1px solid #cbd5e1; display: flex !important; align-items: center !important; box-sizing: border-box;"> 
-                            <a href="tel:+17732457079" style="text-decoration: none; color: inherit; display: inline-flex; align-items: center; font-weight: 400 !important; white-space: nowrap;"> 
-                                <i class="fa-solid fa-phone" style="color: #10b981; margin-right: 6px;"></i> 
-                                <span>773-245-7079</span> 
-                            </a> 
-                            <style> 
-                                @media screen and (max-width: 768px) { .mobile-hide-meta-element { display: none !important; } } 
-                            </style> 
-                            <span class="meta-divider mobile-hide-meta-element" style="width: 1px; height: 14px; background: #cbd5e1; margin: 0 12px; display: inline-block;"></span> 
-                            <span class="mobile-hide-meta-element" style="display: inline-flex; align-items: center; font-weight: 400; white-space: nowrap;"> 
-                                <i class="fa-regular fa-clock" style="color: #10b981; margin-right: 6px;"></i> 
-                                <span id="wizard-live-clock-timestamp">Initializing clock...</span> 
-                            </span> 
+        // FIX: Verify if the clock container node exists. If it does, skip destructive innerHTML rewrites.
+        if (!document.getElementById("wizard-live-clock-timestamp")) {
+            headerTarget.innerHTML = ` 
+                <div class="f4u-full-canvas-header" style="background: #ffffff; border-bottom: 1px solid #cbd5e1; padding: 12px 0; width: 100% !important; min-width: 100% !important; box-sizing: border-box; clear: both; display: block;"> 
+                    <div class="nav-container" style="width: 92% !important; max-width: 1370px !important; margin: 0 auto !important; padding: 0 !important; display: flex !important; justify-content: space-between !important; align-items: center !important; box-sizing: border-box;"> 
+                        <a href="mobile-wizard.html" style="display: block; margin: 0 !important; padding: 0 !important;"> 
+                            <img src="images/logo.png" alt="filings4u" onerror="this.src='images/fav.png'" style="height: 38px; width: auto; max-width: 100%; object-fit: contain; display: block;"> 
+                        </a> 
+                        <div style="display: flex !important; align-items: center !important; justify-content: flex-end !important; box-sizing: border-box; margin: 0 !important; padding: 0 !important;"> 
+                            <div class="header-meta-badge" style="font-size: 0.85rem; font-weight: 400; color: #0f172a; background: #f8fafc; padding: 8px 14px; border-radius: 6px; border: 1px solid #cbd5e1; display: flex !important; align-items: center !important; box-sizing: border-box;"> 
+                                <a href="tel:+17732457079" style="text-decoration: none; color: inherit; display: inline-flex; align-items: center; font-weight: 400 !important; white-space: nowrap;"> 
+                                    <i class="fa-solid fa-phone" style="color: #10b981; margin-right: 6px;"></i> <span>773-245-7079</span> 
+                                </a> 
+                                <style> 
+                                    @media screen and (max-width: 768px) { .mobile-hide-meta-element { display: none !important; } } 
+                                </style> 
+                                <span class="meta-divider mobile-hide-meta-element" style="width: 1px; height: 14px; background: #cbd5e1; margin: 0 12px; display: inline-block;"></span> 
+                                <span class="mobile-hide-meta-element" style="display: inline-flex; align-items: center; font-weight: 400; white-space: nowrap;"> 
+                                    <i class="fa-regular fa-clock" style="color: #10b981; margin-right: 6px;"></i> 
+                                    <span id="wizard-live-clock-timestamp">Initializing clock...</span> 
+                                </span> 
+                            </div> 
                         </div> 
                     </div> 
-                </div> 
-            </div> `; 
-        initializeLiveHeaderClockEngine(); 
+                </div> `; 
+            initializeLiveHeaderClockEngine(); 
+        }
     } 
+    
     if (footerTarget) { 
-        footerTarget.innerHTML = ` 
-            <div class="mobile-action-toolbar"> 
-                <button type="button" class="btn-mobile-nav btn-mobile-secondary" id="mobile-back-btn" onclick="window.navigateMobileWizardStep(-1)">Back</button> 
-                <button type="button" class="btn-mobile-nav btn-mobile-primary" id="mobile-continue-btn" onclick="window.navigateMobileWizardStep(1)">Continue</button> 
-            </div> `; 
+        // FIX: Only inject the action footer if the buttons do not already exist in the canvas
+        if (!document.getElementById("mobile-continue-btn")) {
+            footerTarget.innerHTML = ` 
+                <div class="mobile-action-toolbar"> 
+                    <button type="button" class="btn-mobile-nav btn-mobile-secondary" id="mobile-back-btn" onclick="window.navigateMobileWizardStep(-1)">Back</button> 
+                    <button type="button" class="btn-mobile-nav btn-mobile-primary" id="mobile-continue-btn" onclick="window.navigateMobileWizardStep(1)">Continue</button> 
+                </div> `; 
+        }
     } 
 } 
 
 function initializeLiveHeaderClockEngine() { 
     if (window.isHeaderClockIntervalRunningVanilla) return; 
     window.isHeaderClockIntervalRunningVanilla = true; 
+    
     function updateClockDisplay() { 
         const clockNode = document.getElementById("wizard-live-clock-timestamp"); 
         if (!clockNode) return; 
+        
         const timeNow = new Date(); 
         let rawHours = timeNow.getHours(); 
         const rawMinutes = timeNow.getMinutes(); 
         const amPmIndicator = rawHours >= 12 ? 'PM' : 'AM'; 
+        
         rawHours = rawHours % 12; 
         rawHours = rawHours ? rawHours : 12; 
+        
         const stringifiedMinutes = rawMinutes < 10 ? '0' + rawMinutes : rawMinutes; 
         clockNode.innerText = `${rawHours}:${stringifiedMinutes} ${amPmIndicator}`; 
     } 
+    
     updateClockDisplay(); 
     setInterval(updateClockDisplay, 1000); 
 } 
@@ -389,10 +409,10 @@ function initializeLiveHeaderClockEngine() {
 function bootstrapMobileApplicationEngine() { 
     extractURLConfigurationParameters(); 
     
-    const urlParams = new URLSearchParams(window.location.search);
-    const contextHasUrlParams = urlParams.has('service') || urlParams.has('package') || urlParams.has('plan');
-
+    const urlParams = new URLSearchParams(window.location.search); 
+    const contextHasUrlParams = urlParams.has('service') || urlParams.has('package') || urlParams.has('plan'); 
     const cache = localStorage.getItem("f4u_wizard_onboarding_state"); 
+    
     if (cache && !contextHasUrlParams) { 
         try { 
             const parsed = JSON.parse(cache); 
@@ -400,21 +420,21 @@ function bootstrapMobileApplicationEngine() {
                 window.currentWizardActiveStep = parseInt(parsed.currentWizardActiveStep, 10); 
             } 
         } catch(e) {} 
-    } else if (contextHasUrlParams) {
-        window.currentWizardActiveStep = 1;
-    }
-
+    } else if (contextHasUrlParams) { 
+        window.currentWizardActiveStep = 1; 
+    } 
+    
     buildStaticLayoutStructuralTargets(); 
     verifyDatabaseSyncAndRender(); 
 } 
 
-// NEW: Pure event lifecycle listener to re-render without polling or hardcoding
-window.addEventListener("f4u_database_node_ready", () => {
-    console.log("[Mobile Lifecycle] Pricing node load confirmed. Re-painting workspace canvas views...");
-    if (window.currentWizardActiveStep === 1) {
-        renderActiveWorkflowStepView();
-    }
-});
+// Listen for async database payload readiness confirmation event signals safely
+window.addEventListener("f4u_database_node_ready", () => { 
+    console.log("[Mobile Lifecycle] Pricing node load confirmed. Re-painting workspace canvas views..."); 
+    if (window.currentWizardActiveStep === 1) { 
+        renderActiveWorkflowStepView(); 
+    } 
+}); 
 
 if (document.readyState === "loading") { 
     document.addEventListener("DOMContentLoaded", bootstrapMobileApplicationEngine); 

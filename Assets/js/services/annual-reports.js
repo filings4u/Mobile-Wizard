@@ -1,34 +1,6 @@
 function initAnnualReportsService() { 
-    // Global wizard registries allocation 
+    // Secure global namespaces references cleanly
     window.formRegistry = window.formRegistry || {}; 
-    window.GLOBAL_COMPANY_PRICING = window.GLOBAL_COMPANY_PRICING || {};
-
-    // ============================================================================ 
-    // NEW: Dynamic Step 1 Data Model (Zero Text String Fallback Hardcoding)
-    // ============================================================================ 
-    window.GLOBAL_COMPANY_PRICING["annual-reports"] = {
-        name: "Annual Reports",
-        starter: "89.00",
-        compliance: "159.00",
-        packages: {
-            starter: { title: "Annual Reports Starter", price: "89.00" },
-            compliance: { title: "Annual Reports Compliance", price: "159.00" }
-        },
-        bullets: {
-            starter: [
-                "Mandatory Corporate State Report Preparation",
-                "Filing Deadline Tracking Alerts",
-                "Secured Digital Dashboard Access"
-            ],
-            compliance: [
-                "Mandatory Corporate State Report Preparation",
-                "Filing Deadline Tracking Alerts",
-                "Secured Digital Dashboard Access",
-                "Delinquency Protection Shielding",
-                "Priority Processing Matrix"
-            ]
-        }
-    };
 
     // ============================================================================ 
     // 1. COMPREHENSIVE ENGINE VALIDATORS 
@@ -51,7 +23,7 @@ function initAnnualReportsService() {
             let isValid = true; 
             let errors = []; 
 
-            // 1. FIRST PASS: Run through standard non-empty checks 
+            // 1. FIRST PASS: Standard input presence tracking
             this.requiredFields.forEach(f => { 
                 const el = document.getElementById(f.id); 
                 if (el) { 
@@ -65,7 +37,7 @@ function initAnnualReportsService() {
                 } 
             }); 
 
-            // 2. DEEP VALIDATION: Principal Zip Code 
+            // 2. DEEP VALIDATION: Principal Zip Code Regex checks
             const zipEl = document.getElementById("ar_principal_zip"); 
             if (zipEl && zipEl.value.trim()) { 
                 if (!/^\d{5}$/.test(zipEl.value.trim())) { 
@@ -76,7 +48,7 @@ function initAnnualReportsService() {
                 } 
             } 
 
-            // 3. CONDITIONAL VALIDATION: Alternate Mailing Address 
+            // 3. CONDITIONAL VALIDATION: Alternate Mailing Addresses Layouts
             const mailingChoice = document.getElementById("ar_mailing_choice"); 
             if (mailingChoice && mailingChoice.value === "different") { 
                 const mailingFields = [ 
@@ -108,7 +80,7 @@ function initAnnualReportsService() {
                 }); 
             } 
 
-            // 4. DEEP VALIDATION: Contact Email 
+            // 4. DEEP VALIDATION: Contact Emails Formats
             const emailEl = document.getElementById("ar_contact_email"); 
             if (emailEl && emailEl.value.trim()) { 
                 if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEl.value.trim())) { 
@@ -119,7 +91,7 @@ function initAnnualReportsService() {
                 } 
             } 
 
-            // 5. DEEP VALIDATION: Contact Phone Number 
+            // 5. DEEP VALIDATION: Contact Mobile/Phone Numbers
             const phoneEl = document.getElementById("ar_contact_phone"); 
             if (phoneEl && phoneEl.value.trim()) { 
                 if (phoneEl.value.replace(/\D/g, "").length < 10) { 
@@ -135,10 +107,9 @@ function initAnnualReportsService() {
     }; 
 }
 
-// ============================================================================ 
-// EXECUTION CALL: Kicks off and publishes properties immediately onto the window
-// ============================================================================ 
+// Kick off initialization to expose validations onto the global window object
 initAnnualReportsService();
+
 
 
 window.formRegistry['annual-reports-part2-validation'] = { 
