@@ -204,3 +204,161 @@ body {
     color: var(--primary);
     margin-right: 8px;
 }
+
+
+/* ==========================================================================
+   MOBILE STEP 2 ADVANCED FORM LOOK & FEEL UPGRADE
+   ========================================================================== */
+
+/* 1. Base Framework Container & Section Splitting */
+#dynamic-onboarding-fields-root {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 24px !important; /* Forces uniform breathing room between layout blocks */
+    padding: 8px 4px !important;
+    box-sizing: border-box;
+}
+
+/* Forms layout grids for side-by-side elements on mobile (like First/Last Name) */
+.mobile-wizard-grid-viewport-shell {
+    display: grid !important;
+    grid-template-columns: 1fr !important; /* Default to stacked fields on narrow screens */
+    gap: 18px 14px !important;
+    width: 100% !important;
+}
+
+/* Allow small elements to share rows on wider phone viewports */
+@media screen and (min-width: 420px) {
+    .mobile-wizard-grid-viewport-shell {
+        grid-template-columns: 1fr 1fr !important;
+    }
+    .grid-column-span-2, 
+    [style*="grid-column: span 2"] {
+        grid-column: span 2 !important;
+    }
+}
+
+/* 2. Beautiful Form Sections Wrappers */
+.form-layout-section-block,
+fieldset,
+div[id*="wrapper"] {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 12px !important;
+    padding: 20px !important;
+    margin: 0 0 8px 0 !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03) !important;
+}
+
+/* Clean up embedded horizontal rules or plain boundaries */
+div[style*="border-bottom"] {
+    border-bottom: 2px solid #f1f5f9 !important;
+    padding-bottom: 10px !important;
+    margin-bottom: 14px !important;
+    margin-top: 4px !important;
+}
+
+/* 3. Section Title Typography */
+h3, 
+.form-layout-section-block h3 {
+    font-family: 'Inter', sans-serif !important;
+    color: #0f172a !important; /* Dark Slate Header */
+    font-size: 1.15rem !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.02em;
+}
+
+/* 4. Form Labels Styling */
+.wizard-input-group label,
+#dynamic-onboarding-fields-root label {
+    display: block !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 0.88rem !important;
+    font-weight: 600 !important;
+    color: #334155 !important; /* Slate 700 Label text */
+    margin-bottom: 6px !important;
+}
+
+/* Info Alert Container (e.g., "What is a Shareholder?") */
+div[style*="border-left"] {
+    background: #f8fafc !important;
+    border-left: 4px solid #10b981 !important; /* Matches emerald branding */
+    border-radius: 4px 8px 8px 4px !important;
+    padding: 14px !important;
+    margin-bottom: 16px !important;
+}
+
+/* 5. Inputs, Select Dropdowns, & Text Areas Core Design */
+.wizard-input-field,
+#dynamic-onboarding-fields-root input[type="text"],
+#dynamic-onboarding-fields-root input[type="email"],
+#dynamic-onboarding-fields-root input[type="tel"],
+#dynamic-onboarding-fields-root select {
+    width: 100% !important;
+    min-height: 48px !important; /* Perfect mobile physical touch target size */
+    padding: 10px 14px !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 1rem !important; /* Crucial: 16px keeps iOS from forcing manual page zooms */
+    color: #0f172a !important;
+    background-color: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    box-sizing: border-box !important;
+    transition: all 0.15s ease-in-out !important;
+    outline: none !important;
+}
+
+/* Fix option overlapping/cutting off on native selects */
+#dynamic-onboarding-fields-root select {
+    padding-right: 32px !important;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://w3.org' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 14px center !important;
+    background-size: 16px !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+}
+
+/* Active Highlight States Using Emerald Palette Matrix */
+#dynamic-onboarding-fields-root input:focus,
+#dynamic-onboarding-fields-root select:focus {
+    border-color: #10b981 !important;
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.12) !important;
+    background-color: #ffffff !important;
+}
+
+/* Helper Instructions Under Inputs */
+#dynamic-onboarding-fields-root span[style*="color"],
+#dynamic-onboarding-fields-root small {
+    font-size: 0.8rem !important;
+    color: #64748b !important; /* Slate muted gray */
+    margin-top: 4px !important;
+    display: block !important;
+}
+
+/* 6. Dynamic Utility Interaction Buttons (e.g. "+ Add Additional Shareholder") */
+#dynamic-onboarding-fields-root button,
+input[type="button"][value*="Add"],
+button[id*="Add"] {
+    background-color: #f1f5f9 !important;
+    color: #334155 !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    padding: 10px 16px !important;
+    font-size: 0.9rem !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+    width: auto !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+#dynamic-onboarding-fields-root button:hover {
+    background-color: #e2e8f0 !important;
+    color: #0f172a !important;
+}
+
+

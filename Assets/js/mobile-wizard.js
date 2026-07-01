@@ -165,7 +165,6 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-
 async function renderActiveWorkflowStepView() { 
     const activeIdx = window.currentWizardActiveStep; 
     const currentMeta = window.stepMetadataMatrix[activeIdx] || { title: "Selected Package", desc: "Items and inclusions" }; 
@@ -173,35 +172,33 @@ async function renderActiveWorkflowStepView() {
     const headingTarget = document.getElementById("mobile-step-heading-target"); 
     const fieldsTarget = document.getElementById("dynamic-onboarding-fields-root"); 
     
-    // 1. Check your real data objects natively
+    // 1. FIXED: Point data validation lookups straight to your active configuration engine track metrics
     const activePlan = getActivePlanDetails(); 
-    const centralDatabase = window.GLOBAL_COMPANY_PRICING || window.CENTRAL_SERVICE_PLAN_DB || {}; 
+    const dbRoot = window.STATE_PRICING || {};
+    const centralDatabase = dbRoot.packages || window.GLOBAL_COMPANY_PRICING || window.CENTRAL_SERVICE_PLAN_DB || {}; 
     const totalDatabaseKeysCount = Object.keys(centralDatabase).length; 
 
-    // 2. FUSED LIFECYCLE: If database is completely empty, stall up to 15 times (750ms total) to allow scripts to load
+    // 2. FUSED LIFECYCLE: If database is completely empty, stall up to 15 times (750ms total) to allow scripts to load 
     if (activeIdx === 1 && totalDatabaseKeysCount === 0 && (!activePlan || !activePlan.price || activePlan.price === "0.00")) { 
-        window.databasePollingAttempts = window.databasePollingAttempts || 0;
-        
-        if (window.databasePollingAttempts < 15) {
-            window.databasePollingAttempts++;
-            console.log(`[Mobile Lifecycle] Waiting for database compilation proxy tracks... Attempt: ${window.databasePollingAttempts}`);
-            
+        window.databasePollingAttempts = window.databasePollingAttempts || 0; 
+        if (window.databasePollingAttempts < 15) { 
+            window.databasePollingAttempts++; 
+            console.log(`[Mobile Lifecycle] Waiting for database compilation proxy tracks... Attempt: ${window.databasePollingAttempts}`); 
             if (fieldsTarget && !fieldsTarget.innerHTML.includes("fa-spin")) { 
                 fieldsTarget.innerHTML = ` 
                     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; gap: 12px; color: #475569;"> 
                         <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 2rem; color: #10b981;"></i> 
                         <span style="font-size: 0.95rem; font-weight: 600;">Assembling your customized layout configuration parameters...</span> 
-                    </div> 
-                `; 
+                    </div> `; 
             } 
             setTimeout(renderActiveWorkflowStepView, 50); 
             return; 
-        } else {
-            console.warn("[Mobile Lifecycle] Database polling fuse blown. Proceeding with active URL context parse fallbacks.");
-        }
+        } else { 
+            console.warn("[Mobile Lifecycle] Database polling fuse blown. Proceeding with active URL context parse fallbacks."); 
+        } 
     } 
 
-    // Update Progress Bars & Headings
+    // Update Progress Bars & Headings 
     if (trackerTarget) trackerTarget.innerHTML = `<span class="tracker-label">Step ${activeIdx} of 7: ${currentMeta.title}</span><div class="progress-rail"><div class="progress-beam" style="width: ${(activeIdx / 7) * 100}%"></div></div>`; 
     if (headingTarget) headingTarget.innerHTML = `<h2>${currentMeta.title}</h2><p>${currentMeta.desc}</p>`; 
 
@@ -212,31 +209,26 @@ async function renderActiveWorkflowStepView() {
             if (typeof window.getMobileWizardStepOneMarkup === "function") { 
                 fieldsTarget.innerHTML = window.getMobileWizardStepOneMarkup(); 
             } else { 
-                // Build dynamic DOM card strictly using parsed variables with zero text hardcoding
-                let dynamicListItems = "";
-                if (activePlan && Array.isArray(activePlan.features)) {
-                    dynamicListItems = activePlan.features.map(feat => `
-                        <li style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 0.95rem; color: #334155;">
-                            <span style="color: #10b981; font-weight: bold;">✓</span>
-                            <span>${feat}</span>
-                        </li>
-                    `).join("");
-                }
-
-                fieldsTarget.innerHTML = `
-                    <div class="dynamic-package-card" style="padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-                        <div class="package-card-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; margin-bottom: 16px;">
-                            <h3 style="margin: 0; font-size: 1.25rem; color: #1e293b; font-weight: 700;">${activePlan.title || 'Compliance Filing'}</h3>
-                            <div class="package-price-wrapper" style="font-size: 1.5rem; font-weight: 800; color: #10b981;">
-                                <span>$</span><span>${activePlan.price || '0.00'}</span>
-                            </div>
-                        </div>
-                        <ul class="package-features-list" style="list-style: none; padding: 0; margin: 0;">
-                            ${dynamicListItems || '<li style="color: #64748b; font-style: italic;">Processing custom inclusions for your entity...</li>'}
-                        </ul>
-                    </div>
-                `;
-            }
+                let dynamicListItems = ""; 
+                if (activePlan && Array.isArray(activePlan.features)) { 
+                    dynamicListItems = activePlan.features.map(feat => ` 
+                        <li style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 0.95rem; color: #334155;"> 
+                            <span style="color: #10b981; font-weight: bold;">✓</span> <span>${feat}</span> 
+                        </li> `).join(""); 
+                } 
+                fieldsTarget.innerHTML = ` 
+                    <div class="dynamic-package-card" style="padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.05);"> 
+                        <div class="package-card-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; margin-bottom: 16px;"> 
+                            <h3 style="margin: 0; font-size: 1.25rem; color: #1e293b; font-weight: 700;">${activePlan.title || 'Compliance Filing'}</h3> 
+                            <div class="package-price-wrapper" style="font-size: 1.5rem; font-weight: 800; color: #10b981;"> 
+                                <span>$</span><span>${activePlan.price || '0.00'}</span> 
+                            </div> 
+                        </div> 
+                        <ul class="package-features-list" style="list-style: none; padding: 0; margin: 0;"> 
+                            ${dynamicListItems || '<li style="color: #64748b; font-style: italic;">Processing custom inclusions for your entity...</li>'} 
+                        </ul> 
+                    </div> `; 
+            } 
         } else if (activeIdx === 2) { 
             const masterRegistryKey = `${window.routeActiveServiceKey}-form-master`; 
             if (typeof window.formRegistry[masterRegistryKey] === "function") { 
@@ -248,15 +240,22 @@ async function renderActiveWorkflowStepView() {
             } else if (typeof window.getMobileWizardStepTwoMarkup === "function") { 
                 fieldsTarget.innerHTML = window.getMobileWizardStepTwoMarkup(); 
             } 
-        } else if (activeIdx === 3 && typeof window.getMobileWizardStepThreeMarkup === "function") { 
-            fieldsTarget.innerHTML = window.getMobileWizardStepThreeMarkup(); 
-            if (typeof window.renderTargetUpsellsListPanel === "function") window.renderTargetUpsellsListPanel(); 
+        } else if (activeIdx === 3) { 
+            // FIXED: Fully synchronized layout frame injection sequence
+            if (typeof window.getMobileWizardStepThreeMarkup === "function") {
+                fieldsTarget.innerHTML = window.getMobileWizardStepThreeMarkup(); 
+            }
+            if (typeof window.renderTargetUpsellsListPanel === "function") {
+                console.log("[Mobile Router] Target shell injected. Bootstrapping dynamic catalog data maps...");
+                window.renderTargetUpsellsListPanel(); 
+            }
         } else if (activeIdx === 4 && typeof window.getMobileWizardStepFourMarkup === "function") { 
             fieldsTarget.innerHTML = window.getMobileWizardStepFourMarkup() + (typeof window.getMobileWizardStepFourExecutionFieldsMarkup === "function" ? window.getMobileWizardStepFourExecutionFieldsMarkup() : ""); 
             if (typeof window.evaluatePoaInputStateMatrixMobile === "function") window.evaluatePoaInputStateMatrixMobile(); 
         } else if (activeIdx === 5 && typeof window.getMobileWizardStepFiveMarkup === "function") { 
             fieldsTarget.innerHTML = window.getMobileWizardStepFiveMarkup(); 
             if (typeof window.updateSummaryInvoiceDisplayMatrix === "function") window.updateSummaryInvoiceDisplayMatrix(); 
+            if (typeof window.executeMarketplaceSummaryRenderLoop === "function") window.executeMarketplaceSummaryRenderLoop();
         } else if (activeIdx === 6 && typeof window.getMobileWizardStepSixMarkup === "function") { 
             fieldsTarget.innerHTML = window.getMobileWizardStepSixMarkup(); 
             if (typeof window.initializeFlatStripeCheckoutElement === "function") window.initializeFlatStripeCheckoutElement(); 
@@ -289,9 +288,15 @@ async function renderActiveWorkflowStepView() {
 
 window.navigateMobileWizardStep = function(direction) { 
     if (direction === 1) { 
-        const requiredFields = document.querySelectorAll("#dynamic-onboarding-fields-root input[required], #dynamic-onboarding-fields-root select[required]"); 
+        // FIXED: Only target required inputs and selects that are currently visible to the eye
+        const allRequiredFields = document.querySelectorAll("#dynamic-onboarding-fields-root input[required], #dynamic-onboarding-fields-root select[required]"); 
         let isCurrentStepValid = true; 
-        requiredFields.forEach(element => { 
+        
+        allRequiredFields.forEach(element => {
+            // Safe guard: If a field or its parent wrapper is hidden via CSS, skip validating it for this step
+            const isElementHidden = element.offsetWidth === 0 || element.offsetHeight === 0 || window.getComputedStyle(element).display === 'none';
+            if (isElementHidden) return;
+
             if (!element.value.trim()) { 
                 isCurrentStepValid = false; 
                 element.style.borderColor = "#ef4444"; 
@@ -299,37 +304,44 @@ window.navigateMobileWizardStep = function(direction) {
                 element.style.borderColor = "var(--border, #e2e8f0)"; 
             } 
         }); 
+
         if (!isCurrentStepValid) { 
             alert("Please fill out all required fields before proceeding."); 
             return; 
         } 
+
         if (window.currentWizardActiveStep === 6 && typeof window.executeOnboardingTransactionPayloadSubmitVanilla === "function") { 
             window.executeOnboardingTransactionPayloadSubmitVanilla(); 
             return; 
         } 
     } 
-    
+
     let targetStepIndex = window.currentWizardActiveStep + direction; 
     if (targetStepIndex < 1) targetStepIndex = 1; 
     if (targetStepIndex > 7) targetStepIndex = 7; 
-    
+
     try { 
         const cacheKey = "f4u_wizard_onboarding_state"; 
         const sessionCache = JSON.parse(localStorage.getItem(cacheKey) || "{}"); 
+        
         document.querySelectorAll("#dynamic-onboarding-fields-root input, #dynamic-onboarding-fields-root select, #dynamic-onboarding-fields-root textarea").forEach(input => { 
             const key = input.id || input.name; 
-            if (key) sessionCache[key] = input.type === 'checkbox' ? input.checked : input.value; 
+            if (key) {
+                sessionCache[key] = input.type === 'checkbox' ? input.checked : input.value; 
+            }
         }); 
+        
         sessionCache.currentWizardActiveStep = targetStepIndex; 
         localStorage.setItem(cacheKey, JSON.stringify(sessionCache)); 
     } catch(e) { 
         console.error("[State Save Failed]", e); 
     } 
-    
+
     window.currentWizardActiveStep = targetStepIndex; 
     renderActiveWorkflowStepView(); 
     window.scrollTo({ top: 0, behavior: "smooth" }); 
-}; 
+};
+
 
 function buildStaticLayoutStructuralTargets() { 
     const headerTarget = document.getElementById("mobile-app-header-slot"); 

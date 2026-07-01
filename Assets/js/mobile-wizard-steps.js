@@ -25,33 +25,58 @@ window.getMobileWizardStepTwoMarkup = function() {
     `;
 };
 
-// ============================================================================ //
-// 🚀 STEP 3 PANEL: SPLIT DESIGN COMPLIANCE ADD-ONS MARKET (MOBILE CONVERSION)
-// ============================================================================ //
-window.getMobileWizardStepThreeMarkup = function() {
-    return `
-        <div class="mobile-addons-marketplace-wrapper" style="width: 100%; display: flex; flex-direction: column; gap: 16px; box-sizing: border-box;">
+// ============================================================================ 
+// 🚀 STEP 3 PANEL: SPLIT DESIGN COMPLIANCE ADD-ONS MARKET (MOBILE CONVERSION) 
+// ============================================================================ 
+window.getMobileWizardStepThreeMarkup = function() { 
+    return ` 
+        <div class="mobile-addons-marketplace-wrapper" style="width: 100%; display: flex; flex-direction: column; gap: 16px; box-sizing: border-box;"> 
             
-            <!-- DYNAMIC TARGET CONTAINER FOR ACCELERATION & COMPLIANCE SHIELDS -->
-            <!-- Safe Target Anchor: Populated dynamically via window.renderTargetUpsellsListPanel() -->
-            <div id="wizard-dynamic-upsells-render-target" style="display: flex; flex-direction: column; gap: 12px; width: 100%; box-sizing: border-box;">
-                <div class="mobile-skeleton-loader" style="text-align: center; padding: 40px 16px; color: #64748b; font-size: 0.9rem; border: 1px dashed #cbd5e1; border-radius: 8px; background: #ffffff; box-sizing: border-box;">
-                    <i class="fa-solid fa-spinner fa-spin" style="color: #10b981; margin-right: 8px; font-size: 1.1rem;"></i>
-                    <span>Loading eligible asset protection tiers...</span>
-                </div>
-            </div>
-
-            <!-- Mobile-Optimized Inline Progress Actions Save Trigger -->
-            <div class="mobile-save-progress-holder" style="margin-top: 8px; width: 100%; box-sizing: border-box;">
-                <button type="button" class="btn-wizard-save-progress" onclick="if(typeof executeSaveAndExitWorkflow === 'function'){executeSaveAndExitWorkflow()}"
-                    style="width: 100%; height: 44px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem; font-weight: 600; color: #475569; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: background 0.2s ease;">
-                    <i class="fa-solid fa-floppy-disk"></i> Save Progress
-                </button>
-            </div>
-
-        </div>
-    `;
+            <!-- FIXED TARGET BLOCK: Matches your desktop marketplace engine ID exactly --> 
+            <div id="wizard-dynamic-upsells-render-target" style="display: flex; flex-direction: column; gap: 14px; width: 100%; box-sizing: border-box;"> 
+                <div class="mobile-skeleton-loader" style="text-align: center; padding: 40px 16px; color: #64748b; font-size: 0.9rem; border: 1px dashed #cbd5e1; border-radius: 8px; background: #ffffff; box-sizing: border-box;"> 
+                    <i class="fa-solid fa-spinner fa-spin" style="color: #10b981; margin-right: 8px; font-size: 1.1rem;"></i> 
+                    <span>Loading eligible asset protection tiers...</span> 
+                </div> 
+            </div> 
+            
+            <!-- Mobile-Optimized Inline Progress Actions Save Trigger --> 
+            <div class="mobile-save-progress-holder" style="margin-top: 8px; width: 100%; box-sizing: border-box;"> 
+                <button type="button" class="btn-wizard-save-progress" onclick="if(typeof executeSaveAndExitWorkflow === 'function'){executeSaveAndExitWorkflow()}" style="width: 100%; height: 44px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem; font-weight: 600; color: #475569; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: background 0.2s ease;"> 
+                    <i class="fa-solid fa-floppy-disk"></i> Save Progress 
+                </button> 
+            </div> 
+        </div> `; 
 };
+
+
+// ============================================================================
+// SYSTEM BOOTSTRAP INITIALIZATION FLOWS
+// ============================================================================
+// Read existing phone browser session contexts BEFORE setting default false keys
+const cacheKey = "f4u_wizard_onboarding_state";
+let activeLocalStorageState = {};
+try {
+    activeLocalStorageState = JSON.parse(localStorage.getItem(cacheKey) || "{}");
+} catch(e) {
+    console.warn("[Marketplace Memory] No onboarding session state found in cache.");
+}
+
+// Instantiate your global configuration parameters down into variable memory allocations safely
+if (window.UPSELLS_GLOBAL_STATE_PROPERTY_MAP) {
+    Object.values(window.UPSELLS_GLOBAL_STATE_PROPERTY_MAP).forEach(k => { 
+        if (window[k] === undefined) {
+            // If a step 3 box was checked in a previous session view, preserve its choice natively
+            if (activeLocalStorageState[k] !== undefined) {
+                window[k] = activeLocalStorageState[k];
+            } else {
+                window[k] = false; 
+            }
+        }
+    });
+}
+
+
 
 // ============================================================================ //
 // 📋 STEP 4 PANEL: POWER OF ATTORNEY AND DIGITAL COVENANTS (BLOCK 1 MOBILE)
