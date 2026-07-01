@@ -80,7 +80,7 @@ function getActivePlanDetails() {
             
             const crossScript = document.createElement("script");
             // FIXED PATH STRING: Added the absolute required forward slash to build the clean root URL path dynamically
-            crossScript.src = `https://filings4u.com{serviceKey}.js`; 
+            crossScript.src = `https://mobile.filings4u.com/${serviceKey}.js`; 
             crossScript.async = true;
             crossScript.onload = () => renderActiveWorkflowStepView();
             
