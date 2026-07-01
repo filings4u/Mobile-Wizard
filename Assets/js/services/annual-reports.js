@@ -1,114 +1,144 @@
 function initAnnualReportsService() { 
-  // Global wizard registries allocation 
-  window.formRegistry = window.formRegistry || {}; 
+    // Global wizard registries allocation 
+    window.formRegistry = window.formRegistry || {}; 
+    window.GLOBAL_COMPANY_PRICING = window.GLOBAL_COMPANY_PRICING || {};
 
-  // ============================================================================ // 
-  // 1. COMPREHENSIVE ENGINE VALIDATORS 
-  // ============================================================================ // 
-  window.formRegistry['annual-reports-part1-validation'] = { 
-    requiredFields: [ 
-      { id: 'ar_business_name', msg: 'Business Name is required.' }, 
-      { id: 'ar_business_id', msg: 'Business ID Number is required.' }, 
-      { id: 'ar_business_type', msg: 'Please select a Business Type.' }, 
-      { id: 'ar_principal_street', msg: 'Principal Address Street is required.' }, 
-      { id: 'ar_principal_city', msg: 'Principal Address City is required.' }, 
-      { id: 'ar_principal_state', msg: 'Principal Address State is required.' }, 
-      { id: 'ar_principal_zip', msg: 'Principal Address Zip Code is required.' }, 
-      { id: 'ar_mailing_choice', msg: 'Mailing Address Selection choice is required.' }, 
-      { id: 'ar_contact_name', msg: "Primary Contact Person's Full Name is required." }, 
-      { id: 'ar_contact_phone', msg: "Contact Person's Phone Number is required." }, 
-      { id: 'ar_contact_email', msg: "Contact Person's Email Address is required." } 
-    ], 
-
-    validate: function() { 
-      let isValid = true; 
-      let errors = []; 
-
-      // 1. FIRST PASS: Run through standard non-empty checks
-      this.requiredFields.forEach(f => { 
-        const el = document.getElementById(f.id); 
-        if (el) { 
-          if (!el.value.trim()) { 
-            el.style.borderColor = "#ef4444"; 
-            isValid = false; 
-            if (!errors.includes(f.msg)) errors.push(f.msg); 
-          } else { 
-            el.style.borderColor = "#cbd5e1"; 
-          } 
-        } 
-      });
-
-      // 2. DEEP VALIDATION: Principal Zip Code
-      const zipEl = document.getElementById("ar_principal_zip"); 
-      if (zipEl && zipEl.value.trim()) {
-        if (!/^\d{5}$/.test(zipEl.value.trim())) { 
-          zipEl.style.borderColor = "#ef4444"; 
-          isValid = false; 
-          const zipMsg = 'Principal Business Address Zip Code must be exactly 5 numbers.';
-          if (!errors.includes(zipMsg)) errors.push(zipMsg); 
+    // ============================================================================ 
+    // NEW: Dynamic Step 1 Data Model (Zero Text String Fallback Hardcoding)
+    // ============================================================================ 
+    window.GLOBAL_COMPANY_PRICING["annual-reports"] = {
+        name: "Annual Reports",
+        starter: "89.00",
+        compliance: "159.00",
+        packages: {
+            starter: { title: "Annual Reports Starter", price: "89.00" },
+            compliance: { title: "Annual Reports Compliance", price: "159.00" }
+        },
+        bullets: {
+            starter: [
+                "Mandatory Corporate State Report Preparation",
+                "Filing Deadline Tracking Alerts",
+                "Secured Digital Dashboard Access"
+            ],
+            compliance: [
+                "Mandatory Corporate State Report Preparation",
+                "Filing Deadline Tracking Alerts",
+                "Secured Digital Dashboard Access",
+                "Delinquency Protection Shielding",
+                "Priority Processing Matrix"
+            ]
         }
-      } 
+    };
 
-      // 3. CONDITIONAL VALIDATION: Alternate Mailing Address
-      const mailingChoice = document.getElementById("ar_mailing_choice"); 
-      if (mailingChoice && mailingChoice.value === "different") { 
-        const mailingFields = [ 
-          { id: 'ar_mailing_street', msg: 'Alternate Mailing Street Address is required.' }, 
-          { id: 'ar_mailing_city', msg: 'Alternate Mailing City is required.' }, 
-          { id: 'ar_mailing_state', msg: 'Alternate Mailing State selection is required.' }, 
-          { id: 'ar_mailing_zip', msg: 'Alternate Mailing Zip Code is required.' } 
-        ]; 
+    // ============================================================================ 
+    // 1. COMPREHENSIVE ENGINE VALIDATORS 
+    // ============================================================================ 
+    window.formRegistry['annual-reports-part1-validation'] = { 
+        requiredFields: [ 
+            { id: 'ar_business_name', msg: 'Business Name is required.' }, 
+            { id: 'ar_business_id', msg: 'Business ID Number is required.' }, 
+            { id: 'ar_business_type', msg: 'Please select a Business Type.' }, 
+            { id: 'ar_principal_street', msg: 'Principal Address Street is required.' }, 
+            { id: 'ar_principal_city', msg: 'Principal Address City is required.' }, 
+            { id: 'ar_principal_state', msg: 'Principal Address State is required.' }, 
+            { id: 'ar_principal_zip', msg: 'Principal Address Zip Code is required.' }, 
+            { id: 'ar_mailing_choice', msg: 'Mailing Address Selection choice is required.' }, 
+            { id: 'ar_contact_name', msg: "Primary Contact Person's Full Name is required." }, 
+            { id: 'ar_contact_phone', msg: "Contact Person's Phone Number is required." }, 
+            { id: 'ar_contact_email', msg: "Contact Person's Email Address is required." } 
+        ],
+        validate: function() { 
+            let isValid = true; 
+            let errors = []; 
 
-        mailingFields.forEach(f => { 
-          const el = document.getElementById(f.id); 
-          if (el) { 
-            const val = el.value.trim(); 
-            let isFieldValid = !!val; 
-            let fieldErrorMsg = f.msg;
+            // 1. FIRST PASS: Run through standard non-empty checks 
+            this.requiredFields.forEach(f => { 
+                const el = document.getElementById(f.id); 
+                if (el) { 
+                    if (!el.value.trim()) { 
+                        el.style.borderColor = "#ef4444"; 
+                        isValid = false; 
+                        if (!errors.includes(f.msg)) errors.push(f.msg); 
+                    } else { 
+                        el.style.borderColor = "#cbd5e1"; 
+                    } 
+                } 
+            }); 
 
-            // Handle specific sub-validation for mailing zip
-            if (f.id === 'ar_mailing_zip' && val && !/^\d{5}$/.test(val)) { 
-              isFieldValid = false; 
-              fieldErrorMsg = 'Alternate Mailing Zip Code must consist of exactly 5 numbers.'; 
+            // 2. DEEP VALIDATION: Principal Zip Code 
+            const zipEl = document.getElementById("ar_principal_zip"); 
+            if (zipEl && zipEl.value.trim()) { 
+                if (!/^\d{5}$/.test(zipEl.value.trim())) { 
+                    zipEl.style.borderColor = "#ef4444"; 
+                    isValid = false; 
+                    const zipMsg = 'Principal Business Address Zip Code must be exactly 5 numbers.'; 
+                    if (!errors.includes(zipMsg)) errors.push(zipMsg); 
+                } 
             } 
 
-            if (!isFieldValid) { 
-              el.style.borderColor = "#ef4444"; 
-              isValid = false; 
-              if (!errors.includes(fieldErrorMsg)) errors.push(fieldErrorMsg); 
-            } else { 
-              el.style.borderColor = "#cbd5e1"; 
+            // 3. CONDITIONAL VALIDATION: Alternate Mailing Address 
+            const mailingChoice = document.getElementById("ar_mailing_choice"); 
+            if (mailingChoice && mailingChoice.value === "different") { 
+                const mailingFields = [ 
+                    { id: 'ar_mailing_street', msg: 'Alternate Mailing Street Address is required.' }, 
+                    { id: 'ar_mailing_city', msg: 'Alternate Mailing City is required.' }, 
+                    { id: 'ar_mailing_state', msg: 'Alternate Mailing State selection is required.' }, 
+                    { id: 'ar_mailing_zip', msg: 'Alternate Mailing Zip Code is required.' } 
+                ]; 
+                mailingFields.forEach(f => { 
+                    const el = document.getElementById(f.id); 
+                    if (el) { 
+                        const val = el.value.trim(); 
+                        let isFieldValid = !!val; 
+                        let fieldErrorMsg = f.msg; 
+
+                        if (f.id === 'ar_mailing_zip' && val && !/^\d{5}$/.test(val)) { 
+                            isFieldValid = false; 
+                            fieldErrorMsg = 'Alternate Mailing Zip Code must consist of exactly 5 numbers.'; 
+                        } 
+
+                        if (!isFieldValid) { 
+                            el.style.borderColor = "#ef4444"; 
+                            isValid = false; 
+                            if (!errors.includes(fieldErrorMsg)) errors.push(fieldErrorMsg); 
+                        } else { 
+                            el.style.borderColor = "#cbd5e1"; 
+                        } 
+                    } 
+                }); 
             } 
-          } 
-        }); 
-      } 
 
-      // 4. DEEP VALIDATION: Contact Email
-      const emailEl = document.getElementById("ar_contact_email"); 
-      if (emailEl && emailEl.value.trim()) {
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEl.value.trim())) { 
-          emailEl.style.borderColor = "#ef4444"; 
-          isValid = false; 
-          const emailMsg = "Please enter a valid contact person email address.";
-          if (!errors.includes(emailMsg)) errors.push(emailMsg); 
-        }
-      } 
+            // 4. DEEP VALIDATION: Contact Email 
+            const emailEl = document.getElementById("ar_contact_email"); 
+            if (emailEl && emailEl.value.trim()) { 
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEl.value.trim())) { 
+                    emailEl.style.borderColor = "#ef4444"; 
+                    isValid = false; 
+                    const emailMsg = "Please enter a valid contact person email address."; 
+                    if (!errors.includes(emailMsg)) errors.push(emailMsg); 
+                } 
+            } 
 
-      // 5. DEEP VALIDATION: Contact Phone Number
-      const phoneEl = document.getElementById("ar_contact_phone"); 
-      if (phoneEl && phoneEl.value.trim()) { 
-        if (phoneEl.value.replace(/\D/g, "").length < 10) { 
-          phoneEl.style.borderColor = "#ef4444"; 
-          isValid = false; 
-          const phoneMsg = "Contact Person's Phone Number must contain at least 10 numbers.";
-          if (!errors.includes(phoneMsg)) errors.push(phoneMsg); 
+            // 5. DEEP VALIDATION: Contact Phone Number 
+            const phoneEl = document.getElementById("ar_contact_phone"); 
+            if (phoneEl && phoneEl.value.trim()) { 
+                if (phoneEl.value.replace(/\D/g, "").length < 10) { 
+                    phoneEl.style.borderColor = "#ef4444"; 
+                    isValid = false; 
+                    const phoneMsg = "Contact Person's Phone Number must contain at least 10 numbers."; 
+                    if (!errors.includes(phoneMsg)) errors.push(phoneMsg); 
+                } 
+            } 
+
+            return { isValid, errors }; 
         } 
-      } 
-
-      return { isValid, errors }; 
-    }
-  };
+    }; 
 }
+
+// ============================================================================ 
+// EXECUTION CALL: Kicks off and publishes properties immediately onto the window
+// ============================================================================ 
+initAnnualReportsService();
 
 
 window.formRegistry['annual-reports-part2-validation'] = { 
@@ -490,9 +520,19 @@ window.formRegistry['annual-reports-part3-layout'] = function() {
 }; 
 
 // Master Render System Allocation
-window.formRegistry['annual-reports-form-master'] = function(stateDropdownOptionsHtml = "") { 
-  // FIXED: Functions are now properly executed using () brackets and receive arguments cleanly
-  return window.formRegistry['annual-reports-part1-layout'](stateDropdownOptionsHtml) + 
-         window.formRegistry['annual-reports-part2-layout']() + 
-         window.formRegistry['annual-reports-part3-layout'](); 
-}; 
+window.formRegistry['annual-reports-form-master'] = function(stateDropdownOptionsHtml = "") {
+    // 1. Gather the dynamic raw layout string parts exactly as they are generated
+    const part1 = window.formRegistry['annual-reports-part1-layout'] ? window.formRegistry['annual-reports-part1-layout'](stateDropdownOptionsHtml) : "";
+    const part2 = window.formRegistry['annual-reports-part2-layout'] ? window.formRegistry['annual-reports-part2-layout']() : "";
+    const part3 = window.formRegistry['annual-reports-part3-layout'] ? window.formRegistry['annual-reports-part3-layout']() : "";
+    
+    const combinedRawHtml = part1 + part2 + part3;
+
+    // 2. Wrap the complete dynamic block structure inside a mobile-optimized CSS grid shell
+    return `
+        <div class="mobile-wizard-grid-viewport-shell" 
+             style="display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 24px 16px !important; width: 100% !important; box-sizing: border-box; padding: 4px 2px;">
+            ${combinedRawHtml}
+        </div>
+    `;
+};
