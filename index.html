@@ -23,65 +23,52 @@
     <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Dancing+Script&family=Great+Vibes&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     
 
-    <!-- ⚙️ COMPLIANT SERVICE FILE LOADING SEQUENCER MATRIX -->
 
-<!-- Place this script block at the top of your head, right before wizard-pricing-db.js -->
-<script>
-    // Safeguard pricing object namespaces
-    window.GLOBAL_COMPANY_PRICING = window.GLOBAL_COMPANY_PRICING || {};
-    window.GLOBAL_COMPANY_PRICING.packages = window.GLOBAL_COMPANY_PRICING.packages || {};
-    window.CENTRAL_SERVICE_PLAN_DB = window.CENTRAL_SERVICE_PLAN_DB || {};
-
-    // Global variable shields to stop duplicate declaration compiler crashes
-    var urlParamsMatrix = urlParamsMatrix || null;
-    var step3TargetPanel = step3TargetPanel || null;
-</script>
-
-    <script src="https://mobile.filings4u.com/llc-formation.js" defer></script>
-    <script src="https://mobile.filings4u.com/corporations.js" defer></script>
-    <script src="https://mobile.filings4u.com/series-llc.js" defer></script>
-    <script src="https://mobile.filings4u.com/sole-proprietorship.js" defer></script>
-    <script src="https://mobile.filings4u.com/dba-registration.js" defer></script>
-    <script src="https://mobile.filings4u.com/nonprofits.js" defer></script>
-    <script src="https://mobile.filings4u.com/foreign-qualification.js" defer></script>
-    <script src="https://mobile.filings4u.com/llc-reinstatement.js" defer></script>
-    <script src="https://mobile.filings4u.com/servicemark-filing.js" defer></script>
-    <script src="https://mobile.filings4u.com/annual-reports.js" defer></script>
-    <script src="https://mobile.filings4u.com/operating-agreement.js" defer></script>
-    <script src="https://mobile.filings4u.com/registered-agent.js" defer></script>
-    <script src="https://mobile.filings4u.com/business-licenses.js" defer></script>
-    <script src="https://mobile.filings4u.com/dissolution.js" defer></script>
-    <script src="https://mobile.filings4u.com/certificate-of-good-standing.js" defer></script>
-    <script src="https://mobile.filings4u.com/clia-certificate.js" defer></script>
-    <script src="https://mobile.filings4u.com/regulatory-consulting.js" defer></script>
-    <script src="https://mobile.filings4u.com/state-tax.js" defer></script>
-    <script src="https://mobile.filings4u.com/franchise-tax.js" defer></script>
-    <script src="https://mobile.filings4u.com/sales-tax-registration.js" defer></script>
-    <script src="https://mobile.filings4u.com/payroll-tax-940-941.js" defer></script>
-    <script src="https://mobile.filings4u.com/duns-number.js" defer></script>
-    <script src="https://mobile.filings4u.com/minority-certificate.js" defer></script>
-    <script src="https://mobile.filings4u.com/ifta-registration.js" defer></script>
-    <script src="https://mobile.filings4u.com/dot-permits.js" defer></script>
-    <script src="https://mobile.filings4u.com/ifta-quarterly-returns.js" defer></script>
-    <script src="https://mobile.filings4u.com/federal-tax.js" defer></script>
-    <script src="https://mobile.filings4u.com/employer-id-ein.js" defer></script>
-    <script src="https://mobile.filings4u.com/heavy-use-tax-2290.js" defer></script>
-    <script src="https://mobile.filings4u.com/cage-code.js" defer></script>
-    <script src="https://mobile.filings4u.com/owner-operators.js" defer></script>
-    <script src="https://mobile.filings4u.com/trucker-authority.js" defer></script>
-    <script src="https://mobile.filings4u.com/broker-authority.js" defer></script>
-    <script src="https://mobile.filings4u.com/ucr-registration.js" defer></script>
-    <script src="https://mobile.filings4u.com/scac-code.js" defer></script>
-    <script src="https://mobile.filings4u.com/dot-consortium.js" defer></script>
-    <script src="https://mobile.filings4u.com/driver-file.js" defer></script>
-    <script src="https://mobile.filings4u.com/process-agents-boc-3.js" defer></script>
-    <script src="https://mobile.filings4u.com/hazmat-registration.js" defer></script>
-    <script src="https://mobile.filings4u.com/trucker-insurance-quote.js" defer></script>
-    <script src="https://mobile.filings4u.com/broker-insurance-quote.js" defer></script>
-    <script src="https://mobile.filings4u.com/new-entrant-audit.js" defer></script>
-    <script src="https://mobile.filings4u.com/mcs-150-update.js" defer></script>
-    <script src="https://mobile.filings4u.com/boc-3-amendment.js" defer></script>
-    <script src="https://mobile.filings4u.com/apostille-services.js" defer></script>
+    <script src="assets/js/services/llc-formation.js" defer></script>
+    <script src="assets/js/services/corporations.js" defer></script>
+    <script src="assets/js/services/series-llc.js" defer></script>
+    <script src="assets/js/services/sole-proprietorship.js" defer></script>
+    <script src="assets/js/services/dba-registration.js" defer></script>
+    <script src="assets/js/services/nonprofits.js" defer></script>
+    <script src="assets/js/services/foreign-qualification.js" defer></script>
+    <script src="assets/js/services/llc-reinstatement.js" defer></script>
+    <script src="assets/js/services/servicemark-filing.js" defer></script>
+    <script src="assets/js/services/annual-reports.js" defer></script>
+    <script src="assets/js/services/operating-agreement.js" defer></script>
+    <script src="assets/js/services/registered-agent.js" defer></script>
+    <script src="assets/js/services/business-licenses.js" defer></script>
+    <script src="assets/js/services/dissolution.js" defer></script>
+    <script src="assets/js/services/certificate-of-good-standing.js" defer></script>
+    <script src="assets/js/services/clia-certificate.js" defer></script>
+    <script src="assets/js/services/regulatory-consulting.js" defer></script>
+    <script src="assets/js/services/state-tax.js" defer></script>
+    <script src="assets/js/services/franchise-tax.js" defer></script>
+    <script src="assets/js/services/sales-tax-registration.js" defer></script>
+    <script src="assets/js/services/payroll-tax-940-941.js" defer></script>
+    <script src="assets/js/services/duns-number.js" defer></script>
+    <script src="assets/js/services/minority-certificate.js" defer></script>
+    <script src="assets/js/services/ifta-registration.js" defer></script>
+    <script src="assets/js/services/dot-permits.js" defer></script>
+    <script src="assets/js/services/ifta-quarterly-returns.js" defer></script>
+    <script src="assets/js/services/federal-tax.js" defer></script>
+    <script src="assets/js/services/employer-id-ein.js" defer></script>
+    <script src="assets/js/services/heavy-use-tax-2290.js" defer></script>
+    <script src="assets/js/services/cage-code.js" defer></script>
+    <script src="assets/js/services/owner-operators.js" defer></script>
+    <script src="assets/js/services/trucker-authority.js" defer></script>
+    <script src="assets/js/services/broker-authority.js" defer></script>
+    <script src="assets/js/services/ucr-registration.js" defer></script>
+    <script src="assets/js/services/scac-code.js" defer></script>
+    <script src="assets/js/services/dot-consortium.js" defer></script>
+    <script src="assets/js/services/driver-file.js" defer></script>
+    <script src="assets/js/services/process-agents-boc-3.js" defer></script>
+    <script src="assets/js/services/hazmat-registration.js" defer></script>
+    <script src="assets/js/services/trucker-insurance-quote.js" defer></script>
+    <script src="assets/js/services/broker-insurance-quote.js" defer></script>
+    <script src="assets/js/services/new-entrant-audit.js" defer></script>
+    <script src="assets/js/services/mcs-150-update.js" defer></script>
+    <script src="assets/js/services/boc-3-amendment.js" defer></script>
+    <script src="assets/js/services/apostille-services.js" defer></script>
 
 <!-- Core Wizard Engines & Master Layout Router --> 
 <script src="assets/js/wizard-summary.js" defer></script> 

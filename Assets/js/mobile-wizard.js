@@ -15,11 +15,18 @@ window.stepMetadataMatrix = {
 
 function extractURLConfigurationParameters() { 
     const urlParams = new URLSearchParams(window.location.search); 
-    let service = urlParams.get('service') || urlParams.get('package') || "llc-formation"; 
-    let plan = urlParams.get('plan') || "starter"; 
+    let service = urlParams.get('service') || urlParams.get('package') || ""; 
+    let plan = urlParams.get('plan') || ""; 
 
-    window.routeActiveServiceKey = service ? service.toLowerCase().trim().replace(/[\s_]+/g, "-") : "llc-formation"; 
-    window.routeActivePlanKey = plan ? plan.toLowerCase().trim() : "starter"; 
+    // STRAIGHT REDIRECT: Immediate exit path if the URL lacks the required query parameters
+    if (!service || !plan) {
+        console.warn("[Router Error] Missing core parameter payload. Routing to primary start node.");
+        window.location.href = "https://filings4u.com/get-started.html";
+        return;
+    }
+
+    window.routeActiveServiceKey = service.toLowerCase().trim().replace(/[\s_]+/g, "-"); 
+    window.routeActivePlanKey = plan.toLowerCase().trim(); 
     console.log(`[Context] Service: "${window.routeActiveServiceKey}", Plan: "${window.routeActivePlanKey}"`); 
 }
 function verifyDatabaseSyncAndRender() { 
@@ -27,10 +34,10 @@ function verifyDatabaseSyncAndRender() {
     const isStepsReady = typeof window.getMobileWizardStepOneMarkup === "function"; 
     const isExtractorReady = typeof getActivePlanDetails === "function"; 
 
-    // FIXED FAIL-SAFE BOUNDARY: True execution gate that intercepts missing files and redirects properly
+    // STRAIGHT FAIL-SAFE EXIT: If layout templates fail to compile, exit instantly to the global path
     if ((!isStepsReady || !isExtractorReady) && databasePollingAttempts >= 50) { 
-        console.error("[Boot Error] Core layout dependencies dropped. Forwarding client...");
-        window.location.href = "https://mobile.filings4u.com";
+        console.error("[Boot Error] System dependencies dropped. Relocating workflow...");
+        window.location.href = "https://filings4u.com/get-started.html";
         return; 
     }
 
@@ -42,16 +49,19 @@ function verifyDatabaseSyncAndRender() {
 
     if (!isNativeDbReady) {
         const targetCoreScript = document.createElement("script");
-        // FIXED URL ROUTE: Added the proper file destination array path
+        // FIXED DOMAIN LOCATION ROUTE: Pointing to your central production JavaScript file path
         targetCoreScript.src = "https://filings4u.com/get-started.html"; 
         targetCoreScript.async = true;
         targetCoreScript.onload = () => renderActiveWorkflowStepView();
-        targetCoreScript.onerror = () => renderActiveWorkflowStepView();
+        targetCoreScript.onerror = () => {
+            console.error("[Boot Error] Central pricing tables missing over network channels. Aborting...");
+            window.location.href = "https://filings4u.com/get-started.html";
+        };
         document.head.appendChild(targetCoreScript);
         return;
     }
     renderActiveWorkflowStepView(); 
-} 
+}
 
 function getActivePlanDetails() { 
     const serviceKey = window.routeActiveServiceKey || ""; 
@@ -67,14 +77,23 @@ function getActivePlanDetails() {
     if (window.formRegistry && !window.formRegistry[masterRegistryKey] && serviceKey) {
         if (!window[`_loading_${masterRegistryKey}`]) {
             window[`_loading_${masterRegistryKey}`] = true;
+            
             const crossScript = document.createElement("script");
-            // FIXED URL STRING INTERPOLATION: Corrected broken braces format and injected sub-directory routes
+            // FIXED PATH STRING: Added the absolute required forward slash to build the clean root URL path dynamically
             crossScript.src = `https://filings4u.com{serviceKey}.js`; 
             crossScript.async = true;
             crossScript.onload = () => renderActiveWorkflowStepView();
+            
+            // EXIT ROUTE: Reroute immediately if your custom asset script fails to download over the network
+            crossScript.onerror = () => {
+                console.error(`[Data Error] Failed to download data table file: ${serviceKey}.js. Exiting funnel...`);
+                window.location.href = "https://filings4u.com/get-started.html";
+            };
+            
             document.head.appendChild(crossScript);
         }
     }
+
 
     const nativeSourceDb = window.GLOBAL_COMPANY_PRICING || window.CENTRAL_SERVICE_PLAN_DB || {}; 
     let targetPackage = null; 
